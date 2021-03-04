@@ -1,14 +1,14 @@
 class Song
   attr_reader :name, :artist, :duration
 
-  def initialize(name, artist, duration)
+  def initialize(title, name, duration)
+    @title = title
     @name = name
-    @artist = artist
     @duration = duration
   end
 
   def to_s
-    "Name: #{name}\nArtist: #{artist}\nDuration: #{duration}"
+    "Title: #{title}\nName: #{artist}\nDuration: #{duration}"
   end
 end
 
@@ -19,7 +19,7 @@ class SongList
 
   def [](key)
     return @songs[key] if key.kind_of?(Integer)
-    return @songs.find { |aSong| key == aSong.name }
+    return @songs.find { |aSong| key == aSong.title }
   end
 
   def append(aSong)
@@ -40,12 +40,13 @@ class SongList
   end
 end
 
-list = SongList.new
+songs = SongList.new
 
-list.
-  append(Song.new('Name1', 'Artist1', 1)).
-  append(Song.new('Name2', 'Artist2', 2)).
-  append(Song.new('Name3', 'Artist3', 3)).
-  append(Song.new('Name4', 'Artist4', 4))
+songsFile = File.open("./songs")
+songsFile.each do |line|
+  file, length, name, title = line.chomp.split(/\s*\|\s*/)
+  name.squeeze!(' ')
+  songs.append(Song.new(title, name, length))
+end
 
-puts list
+puts songs
