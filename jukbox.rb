@@ -1,5 +1,25 @@
+class WordIndex
+  def initialize
+    @index = Hash.new(nil)
+  end
+
+  def index(anObject, *phrases)
+    phrases.each do |aPhrase|
+      aPhrase.scan(/\w[-\w']+/) do |aWord|
+        aWord.downcase!
+        @index[aWord] = [] if @index[aWord].nil?
+        @index[aWord].push(anObject)
+      end
+    end
+  end
+
+  def lookup(aWord)
+    @index[aWord.downcase]
+  end
+end
+
 class Song
-  attr_reader :name, :artist, :duration
+  attr_reader :title, :name, :duration
 
   def initialize(title, name, duration)
     @title = title
@@ -8,13 +28,14 @@ class Song
   end
 
   def to_s
-    "Title: #{title}\nName: #{artist}\nDuration: #{duration}"
+    "Title: #{title}\nName: #{name}\nDuration: #{duration}"
   end
 end
 
 class SongList
   def initialize
     @songs = Array.new
+    @index = WordIndex.new
   end
 
   def [](key)
@@ -24,6 +45,7 @@ class SongList
 
   def append(aSong)
     @songs.push(aSong)
+    @index.index(aSong, aSong.name, aSong.title)
     self
   end
 
@@ -33,6 +55,10 @@ class SongList
 
   def deleteLast
     @songs.pop
+  end
+
+  def lookup(aWord)
+    @index.lookup(aWord)
   end
 
   def to_s
@@ -45,8 +71,15 @@ songs = SongList.new
 songsFile = File.open("./songs")
 songsFile.each do |line|
   file, length, name, title = line.chomp.split(/\s*\|\s*/)
+
   name.squeeze!(' ')
-  songs.append(Song.new(title, name, length))
+
+  mins, secs = length.scan(/\d+/)
+
+  songs.append(Song.new(title, name, mins.to_i*60+secs.to_i))
 end
 
-puts songs
+puts songs.lookup("Fats")
+puts songs.lookup("ain't")
+puts songs.lookup("RED")
+puts songs.lookup("WoRlD")
