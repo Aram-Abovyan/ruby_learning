@@ -8,7 +8,7 @@ class WordIndex
       aPhrase.scan(/\w[-\w']+/) do |aWord|
         aWord.downcase!
         @index[aWord] = [] if @index[aWord].nil?
-        @index[aWord].push(anObject)
+        @index[aWord].push(anObject) if !@index.include?(anObject)
       end
     end
   end
